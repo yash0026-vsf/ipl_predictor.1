@@ -49,17 +49,19 @@ load_or_build_model()
 
 # Teams and cities fallback lists
 _DEFAULT_TEAMS = [
-    "Chennai Super Kings", "Delhi Capitals", "Kings XI Punjab",
-    "Kolkata Knight Riders", "Mumbai Indians", "Rajasthan Royals",
+    "Chennai Super Kings", "Delhi Capitals", "Gujarat Titans",
+    "Kolkata Knight Riders", "Lucknow Super Giants", "Mumbai Indians",
+    "Punjab Kings", "Rajasthan Royals",
     "Royal Challengers Bangalore", "Sunrisers Hyderabad"
 ]
 _DEFAULT_CITIES = sorted([
     "Abu Dhabi", "Ahmedabad", "Bangalore", "Bengaluru", "Bloemfontein", "Cape Town",
     "Centurion", "Chandigarh", "Chennai", "Cuttack", "Delhi", "Dharamsala", "Durban",
     "East London", "Hyderabad", "Indore", "Jaipur", "Johannesburg", "Kimberley",
-    "Kolkata", "Mohali", "Mumbai", "Nagpur", "Port Elizabeth", "Pune", "Raipur",
+    "Kolkata", "Lucknow", "Mohali", "Mumbai", "Nagpur", "Port Elizabeth", "Pune", "Raipur",
     "Ranchi", "Sharjah", "Visakhapatnam"
 ])
+
 
 TEAMS = _DEFAULT_TEAMS
 CITIES = _DEFAULT_CITIES

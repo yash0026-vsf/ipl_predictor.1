@@ -1,16 +1,98 @@
 {
   "teams": [
     "Chennai Super Kings",
-    "Deccan Chargers",
     "Delhi Capitals",
-    "Delhi Daredevils",
-    "Kings XI Punjab",
+    "Gujarat Titans",
     "Kolkata Knight Riders",
+    "Lucknow Super Giants",
     "Mumbai Indians",
+    "Punjab Kings",
     "Rajasthan Royals",
     "Royal Challengers Bangalore",
     "Sunrisers Hyderabad"
   ],
+  "team_meta": {
+    "Chennai Super Kings": {
+      "short": "CSK",
+      "primary_color": "#FFFF00",
+      "secondary_color": "#0081E9",
+      "text_color": "#111827",
+      "accent": "#F9CD05",
+      "logo": "🦁"
+    },
+    "Delhi Capitals": {
+      "short": "DC",
+      "primary_color": "#004C97",
+      "secondary_color": "#D71921",
+      "text_color": "#FFFFFF",
+      "accent": "#282968",
+      "logo": "🐯"
+    },
+    "Gujarat Titans": {
+      "short": "GT",
+      "primary_color": "#1B2133",
+      "secondary_color": "#D1AB3E",
+      "text_color": "#FFFFFF",
+      "accent": "#0B4973",
+      "logo": "⚡"
+    },
+    "Kolkata Knight Riders": {
+      "short": "KKR",
+      "primary_color": "#3A225D",
+      "secondary_color": "#ECC542",
+      "text_color": "#FFFFFF",
+      "accent": "#5B327D",
+      "logo": "⚔️"
+    },
+    "Lucknow Super Giants": {
+      "short": "LSG",
+      "primary_color": "#0057E7",
+      "secondary_color": "#FF7A00",
+      "text_color": "#FFFFFF",
+      "accent": "#00B4D8",
+      "logo": "🦅"
+    },
+    "Mumbai Indians": {
+      "short": "MI",
+      "primary_color": "#004BA0",
+      "secondary_color": "#D1AB3E",
+      "text_color": "#FFFFFF",
+      "accent": "#005DA0",
+      "logo": "🌀"
+    },
+    "Punjab Kings": {
+      "short": "PBKS",
+      "primary_color": "#DD1F2D",
+      "secondary_color": "#DCDDDF",
+      "text_color": "#FFFFFF",
+      "accent": "#A7A9AC",
+      "logo": "👑"
+    },
+    "Rajasthan Royals": {
+      "short": "RR",
+      "primary_color": "#EA1A85",
+      "secondary_color": "#004B87",
+      "text_color": "#FFFFFF",
+      "accent": "#C40F6C",
+      "logo": "👑"
+    },
+    "Royal Challengers Bangalore": {
+      "short": "RCB",
+      "primary_color": "#EC1C24",
+      "secondary_color": "#2B2A29",
+      "text_color": "#FFFFFF",
+      "accent": "#B8860B",
+      "logo": "🦅"
+    },
+    "Sunrisers Hyderabad": {
+      "short": "SRH",
+      "primary_color": "#F26522",
+      "secondary_color": "#000000",
+      "text_color": "#FFFFFF",
+      "accent": "#FF822A",
+      "logo": "🦅"
+    }
+  },
   "cities": [
     "Abu Dhabi",
     "Ahmedabad",
@@ -32,6 +114,7 @@
     "Johannesburg",
     "Kimberley",
     "Kolkata",
+    "Lucknow",
     "Mohali",
     "Mumbai",
     "Nagpur",

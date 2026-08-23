@@ -1,5 +1,6 @@
 """
-IPL Win Predictor - Resilient Flask Backend with Health Check & Flexible Template/Static Loaders
+IPL Win Predictor - Resilient Flask Backend
+Serves the web UI and provides win probability predictions with full error recovery.
 """
 import json
 import os
@@ -7,7 +8,7 @@ import pickle
 import jinja2
 import numpy as np
 import pandas as pd
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, render_template_string, request, send_from_directory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
@@ -15,15 +16,12 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
-# Configure Jinja to look in multiple places (templates/, root, templates/static)
-# so it NEVER fails if folder structures were flattened during GitHub upload
-app.jinja_loader = jinja2.ChoiceLoader([
-    jinja2.FileSystemLoader([
-        TEMPLATE_DIR,
-        BASE_DIR,
-        os.path.join(TEMPLATE_DIR, "static"),
-        STATIC_DIR,
-    ])
+# Set jinja_env.loader directly so Flask searches both templates/ and root directory
+app.jinja_env.loader = jinja2.ChoiceLoader([
+    jinja2.FileSystemLoader(TEMPLATE_DIR),
+    jinja2.FileSystemLoader(BASE_DIR),
+    jinja2.FileSystemLoader(os.path.join(BASE_DIR, "templates", "static")),
+    jinja2.FileSystemLoader(STATIC_DIR),
 ])
 
 MODEL_PATH = os.path.join(BASE_DIR, "pipe.pkl")
@@ -100,10 +98,33 @@ def calculate_analytical_probability(runs_left, balls_left, wickets_left, target
 
 @app.route("/", methods=["GET", "HEAD"])
 def index():
-    # Handle Render health checker HEAD requests immediately
     if request.method == "HEAD":
         return "", 200
 
+    # 1. Search for index.html in known file paths
+    possible_paths = [
+        os.path.join(TEMPLATE_DIR, "index.html"),
+        os.path.join(BASE_DIR, "index.html"),
+        os.path.join(BASE_DIR, "templates", "index.html"),
+        os.path.join(BASE_DIR, "templates", "static", "index.html"),
+    ]
+
+    for p in possible_paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    template_content = f.read()
+                return render_template_string(
+                    template_content,
+                    teams=TEAMS,
+                    cities=CITIES,
+                    model_ready=True,
+                    model_error=None,
+                )
+            except Exception as read_err:
+                print(f"Failed rendering {p}: {read_err}")
+
+    # 2. Try standard render_template
     try:
         return render_template(
             "index.html",
@@ -113,18 +134,81 @@ def index():
             model_error=None,
         )
     except Exception as e:
-        print(f"Template rendering error: {e}")
-        # Fallback inline response if template file missing
-        return f"<h1>IPL Win Predictor is Live</h1><p>Status: Ready</p>", 200
+        print(f"Template rendering fallback triggered: {e}")
+
+    # 3. Complete standalone fallback UI if index.html was not found
+    teams_options = "".join([f'<option value="{t}">{t}</option>' for t in TEAMS])
+    cities_options = "".join([f'<option value="{c}">{c}</option>' for c in CITIES])
+    fallback_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Win Predictor</title>
+<style>
+body {{ font-family: sans-serif; background: #090c12; color: #f4f5f0; margin: 0; padding: 20px; }}
+.container {{ max-width: 600px; margin: 0 auto; background: #121826; padding: 24px; border-radius: 12px; }}
+h1 {{ text-align: center; color: #ffb020; margin-top: 0; }}
+.form-group {{ margin-bottom: 14px; }}
+label {{ display: block; margin-bottom: 4px; font-size: 13px; color: #8a93a6; }}
+select, input {{ width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #232d40; background: #161f31; color: #fff; box-sizing: border-box; }}
+button {{ width: 100%; padding: 12px; background: #ffb020; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }}
+.result {{ margin-top: 20px; padding: 16px; background: #161f31; border-radius: 8px; text-align: center; display: none; }}
+.pct {{ font-size: 32px; font-weight: bold; color: #3ddc84; }}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏏 IPL WIN PREDICTOR</h1>
+<form id="pForm">
+<div class="form-group"><label>Batting Team</label><select id="battingTeam" required>{teams_options}</select></div>
+<div class="form-group"><label>Bowling Team</label><select id="bowlingTeam" required>{teams_options}</select></div>
+<div class="form-group"><label>Host City</label><select id="city" required>{cities_options}</select></div>
+<div class="form-group"><label>Target Score</label><input type="number" id="target" value="180" required></div>
+<div class="form-group"><label>Current Score</label><input type="number" id="currentScore" value="125" required></div>
+<div class="form-group"><label>Overs Completed (e.g. 14.2)</label><input type="number" step="0.1" id="overs" value="14.0" required></div>
+<div class="form-group"><label>Wickets Down (0-9)</label><input type="number" id="wickets" value="3" required></div>
+<button type="submit" id="pBtn">Predict Win Probability</button>
+</form>
+<div class="result" id="resBox">
+<div class="pct" id="winPct">--%</div>
+<p id="resDetails" style="color: #8a93a6; font-size: 14px;"></p>
+</div>
+</div>
+<script>
+document.getElementById('pForm').addEventListener('submit', async (e) => {{
+  e.preventDefault();
+  const btn = document.getElementById('pBtn');
+  btn.innerText = 'Calculating...';
+  const payload = {{
+    batting_team: document.getElementById('battingTeam').value,
+    bowling_team: document.getElementById('bowlingTeam').value,
+    city: document.getElementById('city').value,
+    target: document.getElementById('target').value,
+    current_score: document.getElementById('currentScore').value,
+    overs_completed: document.getElementById('overs').value,
+    wickets_down: document.getElementById('wickets').value
+  }};
+  try {{
+    const res = await fetch('/predict', {{ method: 'POST', headers: {{ 'Content-Type': 'application/json' }}, body: JSON.stringify(payload) }});
+    const d = await res.json();
+    document.getElementById('resBox').style.display = 'block';
+    document.getElementById('winPct').innerText = payload.batting_team + ': ' + d.win + '%';
+    document.getElementById('resDetails').innerText = 'Runs Needed: ' + d.runs_left + ' | Balls Left: ' + d.balls_left + ' | CRR: ' + (d.crr || '0') + ' | RRR: ' + (d.rrr || '0');
+  }} catch(err) {{ alert('Prediction failed: ' + err); }}
+  finally {{ btn.innerText = 'Predict Win Probability'; }}
+}});
+</script>
+</body>
+</html>"""
+    return fallback_html, 200
 
 @app.route("/health", methods=["GET", "HEAD"])
 def health():
     return jsonify({"status": "ok"}), 200
 
-# Custom static files fallback to handle any folder layout
 @app.route("/static/<path:filename>")
 def custom_static(filename):
-    for folder in [STATIC_DIR, os.path.join(TEMPLATE_DIR, "static"), BASE_DIR]:
+    for folder in [STATIC_DIR, os.path.join(TEMPLATE_DIR, "static"), BASE_DIR, TEMPLATE_DIR]:
         if os.path.exists(os.path.join(folder, filename)):
             return send_from_directory(folder, filename)
     return "", 404

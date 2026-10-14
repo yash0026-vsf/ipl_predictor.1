@@ -1,6 +1,6 @@
 """
 IPL Win Probability Predictor - Premium Stadium Glassmorphism Web App & REST API
-Features: Dynamic team theming, live AI win probability gauge, What-If ball simulator,
+Features: Dynamic team theming, live AI win probability gauge, What-If ball simulator, yo was up
 interactive wicket tokens, precision overs slider, classic match presets & tactical commentary.
 """
 import json

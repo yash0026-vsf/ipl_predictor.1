@@ -1,4 +1,4 @@
-# IPL Win Predictor — Website
+# IPL Win Predictor — Website...
 
 A Flask website wrapping the win-probability model from your notebook.
 

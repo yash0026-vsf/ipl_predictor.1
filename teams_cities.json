@@ -1,7 +1,7 @@
 {
   "teams": [
     "Chennai Super Kings",
-    "Delhi  Capitals",
+    "Delhi Capitals",
     "Gujarat Titans",
     "Kolkata Knight  Riders",
     "Lucknow Super Giants",
@@ -12,7 +12,7 @@
     "Sunrisers Hyderabad"
   ],
   "team_meta": {
-    "Chennai Super Kings": {
+    "Chennai  Super Kings": {
       "short": "CSK",
       "primary_color": "#FFFF00",
       "secondary_color": "#0081E9",
@@ -124,5 +124,7 @@
     "Ranchi",
     "Sharjah",
     "Visakhapatnam"
+
+    
   ]
 }

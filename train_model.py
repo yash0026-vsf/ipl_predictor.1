@@ -1,6 +1,6 @@
 """
 Reproduces the notebook's data pipeline exactly to train and pickle the
-win-probability model. Run once locally after placing matches.csv and
+win-probability model.    Run once locally after placing matches.csv and
 deliveries.csv.zip in this folder.
 """
 import pickle
